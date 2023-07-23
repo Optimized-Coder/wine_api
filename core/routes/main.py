@@ -8,7 +8,11 @@ main = Blueprint('main', __name__)
 # index
 @main.route('/', methods=['GET'])
 def index():
-    return "<h1>Wines API</h1>"
+    return '''
+<h1>Wines API</h1>
+<p><a href="http://127.0.0.1:5000/wines/">GET all wines</a></p>
+<p><a href="http://127.0.0.1:5000/wines/1">GET One wine</a></p>
+'''
 
 
 # GET
@@ -20,6 +24,12 @@ def get_all_wines():
 @main.route('/wines/<int:wine_id>/', methods=['GET'])
 def get_one_wine(wine_id):
     wine = Wine.query.get(wine_id)
+
+    if not wine:
+        return jsonify({
+            'error': 'Wine not found',
+            'code': 404
+        }), 404
 
     return jsonify(wine.to_dict())
 
