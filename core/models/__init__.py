@@ -1,1 +1,1 @@
-from .wine import Wine
+from .wine import Wine, Notes

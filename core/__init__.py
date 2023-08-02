@@ -14,9 +14,9 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)
-    migrate.init_app(app, db)
+    migrate.init_app(app, db, render_as_batch=True)
 
-    from .models import Wine
+    from .models import Wine, Notes
 
     from .routes import main_bp
     app.register_blueprint(main_bp)

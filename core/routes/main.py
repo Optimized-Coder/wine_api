@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from ..models import Wine
+from ..models import Wine, Notes
 
 from ..extensions import db
 
@@ -18,7 +18,7 @@ def index():
 # GET
 @main.route('/wines/', methods=['GET'])
 def get_all_wines():
-    return [jsonify(wine.to_dict()) for wine in Wine.query.all()]
+    return jsonify([wine.to_dict() for wine in Wine.query.all()])
 
 
 @main.route('/wines/<int:wine_id>/', methods=['GET'])
@@ -39,14 +39,25 @@ def get_one_wine(wine_id):
 def add_wine():
     if request.method == 'POST':
         name = request.form.get('name')
+        color = request.form.get('color')
         notes = request.form.get('notes')
         country = request.form.get('country')
         region = request.form.get('region')
         grape = request.form.get('grape')
         abv = request.form.get('abv')
 
+        print('name: ', name)
+        print('color: ', color)
+        print('notes: ', notes)
+        print('country: ', country)
+        print('region: ', region)
+        print('grape: ', grape)
+        print('abv: ', abv) 
+
+
         new_wine = Wine(
             name=name,
+            color=color,
             notes=notes,
             country=country,
             region=region,
@@ -54,9 +65,22 @@ def add_wine():
             abv=float(abv)
         )
 
+        print(new_wine)
+
         db.session.add(new_wine)
         db.session.commit()
 
+        all_wines = Wine.query.all()
+
+        for note in notes.split(', '):
+            note_exists = bool(Notes.query.filter_by(name=note).first())
+            if not note_exists:
+                new_note = Notes(
+                    name=note
+                )
+                db.session.add(new_note)
+                db.session.commit()
+        
         return 'Wine Added'
 
 
@@ -65,6 +89,7 @@ def add_wine():
 def edit_wine(wine_id):
     if request.method == 'POST':
         name = request.form.get('name')
+        color = request.form.get('color')
         notes = request.form.get('notes')
         country = request.form.get('country')
         region = request.form.get('region')
@@ -74,6 +99,7 @@ def edit_wine(wine_id):
         wine = Wine.query.get(wine_id)
 
         wine.name = name
+        wine.color = color
         wine.notes = notes
         wine.country = country
         wine.region = region
