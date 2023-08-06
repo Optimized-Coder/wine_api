@@ -8,7 +8,8 @@ class Wine(db.Model):
     country = db.Column(db.String(52))
     region = db.Column(db.String(52))
     grape = db.Column(db.String(52))
-    abv = db.Column(db.Float())    
+    abv = db.Column(db.Float())  
+    vintage = db.Column(db.Integer)  
     
     @property
     def new_or_old_world(self):
@@ -17,7 +18,11 @@ class Wine(db.Model):
             'italy',
             'portugal',
             'spain',
-            'germany'
+            'germany',
+            'greece',
+            'hungary',
+            'romania',
+            'bulgaria'
         ]
 
         new_world = [
@@ -26,6 +31,12 @@ class Wine(db.Model):
             'south africa',
             'china',
             'australia',
+            'usa',
+            'argentina',
+            'canada',
+            'brazil',
+            'china',
+            'uruguay'
         ]
 
         if self.country.lower() in old_world:
@@ -54,16 +65,16 @@ class Wine(db.Model):
                 similarity_score += 2
 
         if wine.country.lower() == self.country.lower():
-            similarity_score += 3
+            similarity_score += 4
 
         if wine.color.lower() == self.color.lower():
-            similarity_score += 3
+            similarity_score += 6
 
         if wine.grape.lower() == self.grape.lower():
             similarity_score += 5
         
         if wine.region.lower() == self.region.lower():
-            similarity_score += 8
+            similarity_score += 6
 
         return similarity_score
     
@@ -83,7 +94,7 @@ class Wine(db.Model):
     @property
     def sorted_similar_wines(self):
         sorted_data = sorted(self.similar_wines, key=lambda x: list(x.values())[0], reverse=True)
-        return sorted_data[:2]
+        return sorted_data[:4]
 
     def to_dict(self):
         return {
@@ -98,6 +109,7 @@ class Wine(db.Model):
             "grape": self.grape,
             "new_or_old_world": self.new_or_old_world,
             "similar_wines": self.sorted_similar_wines,
+            "vintage": self.vintage
             # "description": self.generate_description
         }
     

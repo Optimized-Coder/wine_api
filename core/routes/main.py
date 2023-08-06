@@ -18,8 +18,25 @@ def index():
 # GET
 @main.route('/wines/', methods=['GET'])
 def get_all_wines():
-    return jsonify([wine.to_dict() for wine in Wine.query.all()])
-
+    color = request.args.get('color')
+    grape = request.args.get('grape')
+    if color is not None:
+        return jsonify(
+            [wine.to_dict() for wine in Wine.query
+             .filter_by(color=color)
+                        .all()]
+        )
+    elif grape is not None:
+        return jsonify(
+            [wine.to_dict() for wine in Wine.query
+            .filter_by(grape=grape)
+                       .all()]
+        )
+    else:
+        return jsonify(
+            [wine.to_dict() for wine in Wine.query.all()]
+        )
+    
 
 @main.route('/wines/<int:wine_id>/', methods=['GET'])
 def get_one_wine(wine_id):
@@ -38,13 +55,14 @@ def get_one_wine(wine_id):
 @main.route('/wines/add/', methods=['POST'])
 def add_wine():
     if request.method == 'POST':
-        name = request.form.get('name')
-        color = request.form.get('color')
-        notes = request.form.get('notes')
-        country = request.form.get('country')
-        region = request.form.get('region')
-        grape = request.form.get('grape')
-        abv = request.form.get('abv')
+        name = request.form.get('name').strip().lower()
+        color = request.form.get('color').strip().lower()
+        notes = request.form.get('notes').strip().lower()
+        country = request.form.get('country').strip().lower()
+        region = request.form.get('region').strip().lower()
+        grape = request.form.get('grape').strip().lower()
+        abv = request.form.get('abv').strip().lower()
+        vintage = request.form.get('vintage').strip().lower()
 
         print('name: ', name)
         print('color: ', color)
@@ -62,7 +80,8 @@ def add_wine():
             country=country,
             region=region,
             grape=grape,
-            abv=float(abv)
+            abv=float(abv),
+            vintage=vintage
         )
 
         print(new_wine)
@@ -95,6 +114,7 @@ def edit_wine(wine_id):
         region = request.form.get('region')
         grape = request.form.get('grape')
         abv = request.form.get('abv')
+        vintage = request.form.get('vintage')
 
         wine = Wine.query.get(wine_id)
 
@@ -105,6 +125,7 @@ def edit_wine(wine_id):
         wine.region = region
         wine.grape = grape
         wine.abv = abv
+        wine.vintage = vintage
 
         db.session.commit()
 
